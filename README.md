@@ -22,27 +22,38 @@ Answer
 
 Before running the project, make sure you have the following installed:
 
-### 1. Python
+* Python **3.14.6**
+* Conda
+* Git
 
-Python **3.14.6**
-
-Check your version:
+Check your installations:
 
 ```bash
 python --version
+conda --version
+git --version
 ```
 
-### 2. Conda
+---
 
-Conda is used to create an isolated Python environment for the project.
+## Installation
 
-Create the environment:
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd RAG-system
+```
+
+### 2. Create the Conda environment
+
+Create an isolated Python environment for the project:
 
 ```bash
 conda create -n rag-system python=3.14.6
 ```
 
-Activate it:
+Activate the environment:
 
 ```bash
 conda activate rag-system
@@ -56,51 +67,23 @@ You should see:
 
 at the beginning of your terminal.
 
-### 3. Git
-
-Git is required for version control.
-
-Check your installation:
+Verify the Python version:
 
 ```bash
-git --version
+python --version
 ```
 
-### 4. FastAPI
+Expected:
 
-The backend API will be built using FastAPI.
-
-It will be installed inside the `rag-system` environment.
-
-### 5. Uvicorn
-
-Uvicorn will be used as the ASGI server to run the FastAPI application.
-
-It will also be installed inside the project environment.
+```text
+Python 3.14.6
+```
 
 ---
 
-## Project Setup
+### 3. Install dependencies
 
-Clone the repository:
-
-```bash
-git clone <repository-url>
-```
-
-Move into the project:
-
-```bash
-cd RAG-system
-```
-
-Activate the Conda environment:
-
-```bash
-conda activate rag-system
-```
-
-Install the project dependencies:
+Install all required Python packages:
 
 ```bash
 pip install -r requirements.txt
@@ -108,9 +91,65 @@ pip install -r requirements.txt
 
 ---
 
+### 4. Configure environment variables
+
+The project uses environment variables for configuration and sensitive values.
+
+Create your local `.env` file from the example:
+
+#### Git Bash / Linux / macOS
+
+```bash
+cp .env.example .env
+```
+
+#### Windows CMD
+
+```cmd
+copy .env.example .env
+```
+
+#### PowerShell
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then open the `.env` file:
+
+```text
+.env
+```
+
+and configure the required environment variables according to your local environment.
+
+Example:
+
+```env
+APP_ENV=development
+
+# Add your RAG / LLM configuration here
+# API_KEY=
+# MODEL_NAME=
+# DATABASE_URL=
+```
+
+> **Important:** Never commit the `.env` file to Git.
+> The `.env` file may contain secrets such as API keys and database credentials.
+
+The `.env.example` file should contain only the required variable names and safe example values.
+
+---
+
 ## Running the Application
 
-Start the FastAPI server:
+Make sure the Conda environment is active:
+
+```bash
+conda activate rag-system
+```
+
+Start the FastAPI development server:
 
 ```bash
 uvicorn app.main:app --reload
@@ -122,7 +161,7 @@ The API will be available at:
 http://localhost:8000
 ```
 
-FastAPI Swagger documentation:
+Swagger API documentation:
 
 ```text
 http://localhost:8000/docs
@@ -156,4 +195,4 @@ Uvicorn
 Conda
 ```
 
-More dependencies will be added as the RAG system evolves.
+More dependencies and environment variables will be added as the RAG system evolves.
