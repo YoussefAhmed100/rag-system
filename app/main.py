@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.modules.base import router as base_router
+from app.modules.upload import router as upload_router
 
 
-@app.get("/")
-async def read_root():
-    return {"message": "hello from RAG-system!"}
+app = FastAPI(
+    title="RAG System",
+)
+
+app.include_router(base_router)
+app.include_router(upload_router)
