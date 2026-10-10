@@ -1,198 +1,166 @@
-#  RAG App
+# RAG App
 
-A simple **Retrieval-Augmented Generation (RAG)** application built with **Python** and **FastAPI**.
+A **Retrieval-Augmented Generation (RAG)** application built with **Python** and **FastAPI**.
+The project is built step by step to understand how a RAG system works end to end: from loading documents to getting an LLM answer grounded in your own data.
 
-The goal of this project is to understand how a RAG system works from end to end:
+## Table of Contents
 
-```text
-User
-  ↓
-FastAPI
-  ↓
-Document Retrieval
-  ↓
-Relevant Context
-  ↓
-LLM
-  ↓
-Answer
-```
-
-## Requirements
-
-Before running the project, make sure you have the following installed:
-
-* Python **3.14.6**
-* Conda
-* Git
-
-Check your installations:
-
-```bash
-python --version
-conda --version
-git --version
-```
+1. [Overview](#overview)
+2. [Tech Stack](#tech-stack)
+3. [Use Case Diagram](#use-case-diagram)
+4. [Prerequisites](#prerequisites)
+5. [Getting Started (Step by Step)](#getting-started-step-by-step)
+6. [Environment Variables](#environment-variables)
+7. [Running the Application](#running-the-application)
+8. [Project Structure](#project-structure)
+9. [Troubleshooting](#troubleshooting)
+10. [Roadmap](#roadmap)
 
 ---
 
-## Installation
+## Overview
+
+A plain LLM only knows what it was trained on. A RAG system adds your own documents to the loop:
+
+1. Documents are split into chunks and converted into embeddings.
+2. Embeddings are stored in a vector database.
+3. When a user asks a question, the most similar chunks are retrieved.
+4. The chunks are injected into the prompt as context.
+5. The LLM answers using that context.
+
+```
+User → FastAPI → Document Retrieval → Relevant Context → LLM → Answer
+```
+
+## Tech Stack
+
+| Layer          | Technology                          |
+| -------------- | ----------------------------------- |
+| Language       | Python 3.14.6                       |
+| Web framework  | FastAPI                             |
+| ASGI server    | Uvicorn                             |
+| Environment    | Conda                               |
+| Config         | `.env` file                         |
+| LLM / Vector DB| Configured via environment variables (see below) |
+
+## Use Case Diagram
+
+What the system does. It will be updated as the RAG pipeline evolves.
+
+![Use Case Diagram](docs/use-case-diagram.png)
+
+## Prerequisites
+
+| Tool   | Version  | Check command        |
+| ------ | -------- | -------------------- |
+| Python | 3.14.6   | `python --version`   |
+| Conda  | latest   | `conda --version`    |
+| Git    | latest   | `git --version`      |
+
+## Getting Started (Step by Step)
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd RAG-system
+git clone https://github.com/YoussefAhmed100/rag-system.git
+cd rag-system
 ```
 
-### 2. Create the Conda environment
-
-Create an isolated Python environment for the project:
+### 2. Create and activate the Conda environment
 
 ```bash
 conda create -n rag-system python=3.14.6
-```
-
-Activate the environment:
-
-```bash
 conda activate rag-system
+python --version   # Expected: Python 3.14.6
 ```
 
-You should see:
-
-```text
-(rag-system)
-```
-
-at the beginning of your terminal.
-
-Verify the Python version:
-
-```bash
-python --version
-```
-
-Expected:
-
-```text
-Python 3.14.6
-```
-
----
+You should see `(rag-system)` at the start of your terminal prompt.
 
 ### 3. Install dependencies
-
-Install all required Python packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
 ### 4. Configure environment variables
 
-The project uses environment variables for configuration and sensitive values.
+Create your local `.env` from the example:
 
-Create your local `.env` file from the example:
+| Shell                  | Command                          |
+| ---------------------- | -------------------------------- |
+| Git Bash / Linux / macOS | `cp .env.example .env`         |
+| Windows CMD            | `copy .env.example .env`         |
+| PowerShell             | `Copy-Item .env.example .env`    |
 
-#### Git Bash / Linux / macOS
+Open `.env` and fill in the values (see the next section).
 
-```bash
-cp .env.example .env
-```
+> **Important:** never commit `.env`. It may contain API keys and database credentials.
 
-#### Windows CMD
-
-```cmd
-copy .env.example .env
-```
-
-#### PowerShell
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Then open the `.env` file:
-
-```text
-.env
-```
-
-and configure the required environment variables according to your local environment.
-
-Example:
-
-```env
-APP_ENV=development
-
-# Add your RAG / LLM configuration here
-# API_KEY=
-# MODEL_NAME=
-# DATABASE_URL=
-```
-
-> **Important:** Never commit the `.env` file to Git.
-> The `.env` file may contain secrets such as API keys and database credentials.
-
-The `.env.example` file should contain only the required variable names and safe example values.
-
----
-
-## Running the Application
-
-Make sure the Conda environment is active:
-
-```bash
-conda activate rag-system
-```
-
-Start the FastAPI development server:
+### 5. Run the server
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The API will be available at:
+### 6. Verify
 
-```text
-http://localhost:8000
+- API: <http://localhost:8000>
+- Swagger UI: <http://localhost:8000/docs>
+
+## Environment Variables
+
+Copy the exact variable names from `.env.example`. Typical values for a RAG setup:
+
+| Variable     | Required | Description                               | Example           |
+| ------------ | -------- | ----------------------------------------- | ----------------- |
+| `APP_ENV`    | Yes      | Runtime environment                       | `development`     |
+| `API_KEY`    | Depends  | LLM provider API key                      | `sk-...`          |
+| `MODEL_NAME` | Depends  | LLM / embedding model name                | `your-model-name` |
+| `DATABASE_URL` | Depends | Vector DB / database connection string  | `your-connection` |
+
+## Running the Application
+
+```bash
+conda activate rag-system
+uvicorn app.main:app --reload
 ```
 
-Swagger API documentation:
+Useful options:
 
-```text
-http://localhost:8000/docs
+```bash
+uvicorn app.main:app --reload --port 8080      # custom port
+uvicorn app.main:app --host 0.0.0.0            # expose on the network
 ```
 
----
+## Project Structure
 
-## Project Goal
-
-This project is mainly for learning and understanding the core concepts behind RAG systems.
-
-The main concepts we will cover are:
-
-* Document loading
-* Text splitting / chunking
-* Embeddings
-* Vector databases
-* Similarity search
-* Retrieval
-* LLM integration
-* Prompt construction
-* FastAPI APIs
-* RAG pipeline
-
-## Development Environment
-
-```text
-Python 3.14.6
-FastAPI
-Uvicorn
-Conda
+```
+rag-system/
+├── app/                 # FastAPI application (entry point: app/main.py)
+├── .env.example         # Environment variables template
+├── .gitignore
+├── requirements.txt     # Python dependencies
+└── README.md
 ```
 
-More dependencies and environment variables will be added as the RAG system evolves.
+## Troubleshooting
+
+| Problem | Cause | Fix |
+| ------- | ----- | --- |
+| `conda: command not found` | Conda not on PATH | Open *Anaconda Prompt* or run `conda init` then restart the terminal |
+| `ModuleNotFoundError` | Dependencies not installed or wrong env | `conda activate rag-system` then `pip install -r requirements.txt` |
+| `Could not import module "app.main"` | Running from the wrong folder | Run `uvicorn` from the repo root, where the `app/` folder is |
+| `Address already in use` | Port 8000 is busy | Use `--port 8080` or stop the other process |
+| `pip` fails building a package on Python 3.14 | Package has no wheel for 3.14 yet | Upgrade the package, or check its release notes for 3.14 support |
+| Authentication / 401 from the LLM | Missing or wrong `API_KEY` | Re-check `.env` and restart the server |
+
+## Roadmap
+
+- [ ] Document loading
+- [ ] Text splitting / chunking
+- [ ] Embeddings
+- [ ] Vector database
+- [ ] Similarity search and retrieval
+- [ ] Prompt construction
+- [ ] LLM integration
+- [ ] Full RAG pipeline exposed via FastAPI endpoints
