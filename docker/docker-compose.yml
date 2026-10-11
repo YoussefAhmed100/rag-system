@@ -1,0 +1,76 @@
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: rag_api
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../app:/app/app
+      - ../assets/files:/app/assets/files
+
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:8
+    container_name: rag_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--username",
+          "${MONGO_INITDB_ROOT_USERNAME}",
+          "--password",
+          "${MONGO_INITDB_ROOT_PASSWORD}",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping').ok"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: rag_mongo_express
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
